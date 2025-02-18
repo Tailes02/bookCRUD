@@ -9,8 +9,7 @@ export class BookDto {
   author?: string;
 
   @IsOptional()
-  @IsDate()
-  publicationDate?: Date;
+  publicationDate?: string;
 }
 
 

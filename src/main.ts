@@ -11,6 +11,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
    .setTitle("Bookstore API")
    .setDescription("BookCRUD")
+   .addApiKey({ type: 'apiKey', name: 'x-api-key', in: 'header' }, 'api-key') // Adds API Key to Swagger
    .build();
 
    const document = SwaggerModule.createDocument(app, config);
