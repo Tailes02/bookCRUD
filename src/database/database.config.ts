@@ -4,9 +4,9 @@ export const typeOrmConfig: TypeOrmModule = {
   type: "mysql",
   host: 'localhost',
   port: 3306,
-  username: 'quangdn',
+  username: 'taile',
   password: '123456',
-  database: "nestjsBeginner",
+  database: "nestjs",
   synchronize: true,
   autoLoadEntities: true,
   entities: [__dirname + "/**/*.entity{.ts,.js}"]

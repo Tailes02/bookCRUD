@@ -12,10 +12,11 @@ import { JwtAuthGuard } from 'src/auth/guard/Jwt-Auth.guard';
 @ApiTags('User')
 
 
-@Controller('user')
+// @ApiBearerAuth('access-token')
+// @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  
+  @UseGuards(JwtAuthGuard)
   @Get('allUsers')
   @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse({ type: GetAllUsersResponse })
