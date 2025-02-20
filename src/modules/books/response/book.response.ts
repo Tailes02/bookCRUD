@@ -1,23 +1,17 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { DefaultResponse } from 'src/docs/default/default-response.swagger';
 import { Book } from '../entities/books.entity';
+import { ApiProperty } from '@nestjs/swagger';
+export class BookData extends Book {}
 
-export class BookResponse extends Book{
-  @Expose()
-  @ApiProperty({ example: 1, description: 'Book ID' })
-  id: number;
-
-  @Expose()
-  @ApiProperty({ example: 'Tales', description: 'Book title' })
-  title: string;
-
-  @Expose()
-  @ApiProperty({ example: 'Whiteforest', description: 'Book author' })
-  author: string;
-
-  @Expose()
-  @ApiProperty({ example: '2024-02-17', description: 'Publication Date' })
-  publicationDate: string;
+export class GetAllBooksResponse extends DefaultResponse {
+  @ApiProperty({ type: [Book] })
+  data: Book[]
 }
 
-  
+export class GetBookInfoResponse extends DefaultResponse {
+  @ApiProperty({ type: Book })
+  data: Book | null;
+}
+
+export class CreateBookResponse extends GetBookInfoResponse {}
+export class UpdateBookResponse extends GetBookInfoResponse {}

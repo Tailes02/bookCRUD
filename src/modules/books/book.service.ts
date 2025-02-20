@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Book } from './entities/books.entity';
-import { BookDto } from './dto/book.dto';
-import { BookResponse } from './response/book.response';
+import { CreateBookDto, UpdateBookDto } from './dto/book.dto';
+import { CreateBookResponse, GetAllBooksResponse, GetBookInfoResponse, UpdateBookResponse } from './response/book.response';
+import { DefaultResponse } from 'src/docs/default/default-response.swagger';
 @Injectable()
 export class BookService {
   constructor(
@@ -11,72 +12,80 @@ export class BookService {
     private readonly bookRepo: Repository<Book>,
   ) {}
 
-  async create(createBookDto: BookDto): Promise<BookResponse> {
+  async create(payload: CreateBookDto): Promise<CreateBookResponse> {
     try {
-      const book = this.bookRepo.create(createBookDto);
-      const savedBook = await this.bookRepo.save(book);
-      return savedBook
+      const bookExists = await this.bookRepo.findOne({
+        where: { title: payload.title },
+      });
+      if (bookExists) throw new BadRequestException('Book already exists');
+      const book = await this.bookRepo.save(payload);
+      return { code: 200, status: 'success', data: book };
     } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException('Error creating the book');
+      console.error('Error creating the book:', error.message);
+      return { code: 400, status: 'error', data: null };
     }
   }
-  
-  async findAll(): Promise<BookResponse[]> {
+
+  async findAll(): Promise<GetAllBooksResponse> {
     try {
-      const books = await this.bookRepo.find({ relations: ['user'] });
-  
-      return books
+      const books = await this.bookRepo.find({ relations: ['books'] });
+      return {
+        code: 200,
+        status: 'success',
+        data: books,
+      };
     } catch (error) {
-      console.error('Error retrieving books:', error.message);
-      throw new InternalServerErrorException('Error retrieving books');
+      console.error('Error retrieving the books:', error.message);
+      return { code: 400, status: 'error', data: [] };
     }
   }
-  
-  async findOne(id: number): Promise<BookResponse> {
+
+  async findOne(id: number): Promise<GetBookInfoResponse> {
     try {
-      const book = await this.bookRepo.findOne({where: { id },relations: ['user']});
-  
-      if (!book) {
-        throw new NotFoundException(`Book with ID ${id} not found`);
-      }
-  
-      return book
+      const book = await this.bookRepo.findOne({
+        where: { id },
+        relations: ['user'],
+      });
+      if (!book) throw new NotFoundException(`Book with ID ${id} not found`);
+      return {
+        code: 200,
+        status: 'success',
+        data: book,
+      };
     } catch (error) {
       console.error('Error retrieving the book:', error.message);
-      throw new InternalServerErrorException('Error retrieving the book');
+      return { code: 400, status: 'error', data: null };
     }
   }
-  
-  async update(id: number, updateBookDto: BookDto): Promise<BookResponse> {
+
+  async update(id: number, payload: UpdateBookDto): Promise<UpdateBookResponse> {
     try {
       const book = await this.bookRepo.findOne({ where: { id } });
-      if (!book) {
-        throw new NotFoundException(`Book with ID ${id} not found`);
-      }
-  
-      const updatedBook = this.bookRepo.merge(book, updateBookDto);
+      if (!book) throw new NotFoundException(`Book with ID ${id} not found`);
+      const updatedBook = this.bookRepo.merge(book, payload);
       const savedBook = await this.bookRepo.save(updatedBook);
-  
-      return savedBook;
+      return {
+        code: 200,
+        status: 'success',
+        data: savedBook,
+      };
     } catch (error) {
       console.error('Error updating the book:', error.message);
-      throw new InternalServerErrorException('Error updating the book');
+      return { code: 400, status: 'error', data: null };
     }
   }
-  
-  async remove(id: number): Promise<{ message: string }> {
+
+  async remove(id: number): Promise<DefaultResponse> {
     try {
       const book = await this.bookRepo.findOne({ where: { id } });
       if (!book) {
         throw new NotFoundException(`Book with ID ${id} not found`);
       }
-        await this.bookRepo.remove(book);  
-      return { message: 'Book deleted successfully' };
+      await this.bookRepo.remove(book);
+      return { code: 200, status: 'success' };
     } catch (error) {
       console.error('Error deleting the book:', error.message);
-      throw new InternalServerErrorException('Error deleting the book');
+      return { code: 400, status: 'error' };
     }
   }
-  
 }

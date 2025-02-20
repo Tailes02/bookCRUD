@@ -1,24 +1,17 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from "class-transformer";
+import { DefaultResponse } from 'src/docs/default/default-response.swagger';
 import { User } from '../entities/users.entity';
+import { ApiProperty } from '@nestjs/swagger';
+export class UserData extends User {}
 
-export class UserResponse extends User{
-  @Expose()
-  @ApiProperty({ example: '1', description: 'Book ID' })
-  id: number;
-
-  @Expose()
-  @ApiProperty({ example: 'Tailes', description: 'User name' })
-  name: string;
-
-  @Expose()
-  @ApiProperty({ example: 'taihuule02@gmail.com', description: 'email' })
-  email: string;
-
-  @Exclude()
-  @ApiProperty({ example: '12345678', description: 'password' })
-  password: string;
+export class GetAllUsersResponse extends DefaultResponse {
+  @ApiProperty({ type: [User] })
+  data: User[]
 }
 
+export class GetUserInfoResponse extends DefaultResponse {
+  @ApiProperty({ type: User })
+  data: User | null;
+}
 
-
+export class CreateUserResponse extends GetUserInfoResponse {}
+export class UpdateUserResponse extends GetUserInfoResponse {}
