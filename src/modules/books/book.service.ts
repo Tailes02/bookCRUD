@@ -26,9 +26,18 @@ export class BookService {
     }
   }
 
-  async findAll(): Promise<GetAllBooksResponse> {
+  async findAll(filters?: { title?: string; author?: string }): Promise<GetAllBooksResponse> {
     try {
-      const books = await this.bookRepo.find({ relations: ['books'] });
+      const query = this.bookRepo.createQueryBuilder('book')
+        .leftJoinAndSelect('book.user', 'user'); 
+      if (filters?.title) {
+        query.andWhere('book.title LIKE :title', { title: `%${filters.title}%` });
+      }
+  
+      if (filters?.author) {
+        query.andWhere('book.author LIKE :author', { author: `%${filters.author}%` });
+      }
+      const books = await query.getMany();
       return {
         code: 200,
         status: 'success',
@@ -39,24 +48,52 @@ export class BookService {
       return { code: 400, status: 'error', data: [] };
     }
   }
-
-  async findOne(id: number): Promise<GetBookInfoResponse> {
+  
+  
+    
+  
+  async findOne(filters: { name?: string; email?: string; bookTitle?: string; bookAuthor?: string; publicationDate?: string }): Promise<GetBookInfoResponse> {
     try {
-      const book = await this.bookRepo.findOne({
-        where: { id },
-        relations: ['user'],
-      });
-      if (!book) throw new NotFoundException(`Book with ID ${id} not found`);
-      return {
-        code: 200,
-        status: 'success',
-        data: book,
-      };
+      const query = this.bookRepo.createQueryBuilder('book')
+        .leftJoinAndSelect('book.user', 'user') 
+        .addSelect(['book.id', 'book.title', 'book.author', 'book.publicationDate', 'user.name', 'user.email']); // Selecting required fields
+  
+      // Book filters
+      if (filters?.bookTitle) {
+        query.andWhere('book.title = :bookTitle', { bookTitle: filters.bookTitle });
+      }
+  
+      if (filters?.bookAuthor) {
+        query.andWhere('book.author = :bookAuthor', { bookAuthor: filters.bookAuthor });
+      }
+  
+      if (filters?.publicationDate) {
+        query.andWhere('book.publicationDate = :publicationDate', { publicationDate: filters.publicationDate });
+      }
+  
+      // User filters
+      if (filters?.name) {
+        query.andWhere('user.name = :name', { name: filters.name });
+      }
+  
+      if (filters?.email) {
+        query.andWhere('user.email = :email', { email: filters.email });
+      }
+  
+      const book = await query.getOne();
+  
+      if (!book) {
+        return { code: 404, status: 'not_found', data: null };
+      }
+  
+      return { code: 200, status: 'success', data: book };
     } catch (error) {
       console.error('Error retrieving the book:', error.message);
       return { code: 400, status: 'error', data: null };
     }
   }
+  
+    
 
   async update(id: number, payload: UpdateBookDto): Promise<UpdateBookResponse> {
     try {

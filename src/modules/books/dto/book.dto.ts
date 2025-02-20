@@ -13,7 +13,7 @@ export class CreateBookDto {
 
   author: string;
 
-  @IsDate()
+  @IsString()
   @ApiProperty({ example: '20-06-2022', description: 'publish date' })
   publicationDate: string;
 

@@ -41,9 +41,20 @@ export class UserService {
   }
   
 
-  async findAll(): Promise<GetAllUsersResponse> {
+  async findAll(filters?: { name?: string; email?: string }): Promise<GetAllUsersResponse> {
     try {
-      const users = await this.userRepo.find({ relations: ['books'] });
+      const query = this.userRepo.createQueryBuilder('user')
+        .leftJoinAndSelect('user.books', 'books');
+  
+      if (filters?.name) {
+        query.andWhere('user.name LIKE :name', { name: `%${filters.name}%` });
+      }
+
+      if (filters?.email) {
+        query.andWhere('user.email LIKE :email', { email: `%${filters.email}%` });
+      }
+      const users = await query.getMany();
+  
       return {
         code: 200,
         status: 'success',
@@ -54,24 +65,20 @@ export class UserService {
       return { code: 400, status: 'error', data: [] };
     }
   }
+  
 
-  async findOne(id: number): Promise<GetUserInfoResponse> {
-    try {
-      
-      const user = await this.userRepo.findOne({
-        where: { id },
-        relations: ['books'],
-      });
-      if (!user) throw new NotFoundException(`User with ID ${id} not found`);
-      return {
-        code: 200,
-        status: 'success',
-        data: user,
-      };
-    } catch (error) {
-      console.error('Error retrieving the user:', error.message);
-      return { code: 400, status: 'error', data: null };
-    }
+  async findOne(filters: { name?: string; email?: string }): Promise<GetUserInfoResponse> {
+    const query = this.userRepo.createQueryBuilder('user')
+      .leftJoin('user.books', 'books')
+      .addSelect(['books.id', 'books.title', 'books.author']);
+  
+      if (filters?.name) query.andWhere('user.name = :name', { name: filters.name });
+      if (filters?.email) query.andWhere('user.email = :email', { email: filters.email });
+  
+    const user = await query.getOne();
+    if (!user) return { code: 404, status: 'not_found', data: null };
+  
+    return { code: 200, status: 'success', data: user };
   }
 
   async update(id: number, payload: UpdateUserDto): Promise<UpdateUserResponse> {

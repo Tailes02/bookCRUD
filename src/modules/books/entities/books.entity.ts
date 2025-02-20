@@ -4,19 +4,19 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Book {
-  @ApiProperty()
+  @ApiProperty({ example: 1, description: 'id user'})
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Wutherings Height', description: 'tên sách'})
   @Column()
   title: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Emily Bronte', description: 'tên tác giả'})
   @Column()
   author: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '20-06-2004', description: 'ngày phát hành'})
   @Column()
   publicationDate: string;
 

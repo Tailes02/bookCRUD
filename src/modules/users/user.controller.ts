@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, UseGuards,Request,} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, UseGuards,Request,Query} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
-import { ApiOkResponse, ApiOperation, ApiTags,ApiBearerAuth } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags,ApiBearerAuth,ApiQuery } from '@nestjs/swagger';
 import { DefaultResponse } from 'src/docs/default/default-response.swagger';
 import { CreateUserResponse, GetAllUsersResponse, GetUserInfoResponse, UpdateUserResponse } from './response/user.response';
 import { LocalAuthGuard } from 'src/auth/guard/local-auth.guard';
@@ -13,22 +13,34 @@ import { JwtAuthGuard } from 'src/auth/guard/Jwt-Auth.guard';
 
 
 // @ApiBearerAuth('access-token')
-// @Controller('user')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  @UseGuards(JwtAuthGuard)
+  
   @Get('allUsers')
-  @ApiOperation({ summary: 'Get all users' })
+  @ApiOperation({ summary: 'Get all users with optional filters' })
   @ApiOkResponse({ type: GetAllUsersResponse })
-  findAll() {
-    return this.userService.findAll();
+  @ApiQuery({ name: 'name', required: false, description: 'Filter by user name' })
+  @ApiQuery({ name: 'email', required: false, description: 'Filter by user email' })
+  findAll(
+    @Query('name') name?: string,
+    @Query('email') email?: string,
+  ) {
+    return this.userService.findAll({ name, email });
   }
-  @Get('info/:id')
-  @ApiOperation({ summary: 'Get user info' })
+  
+  @Get('info')
+  @ApiOperation({ summary: 'Get user info by filters' })
   @ApiOkResponse({ type: GetUserInfoResponse })
-  getUserInfo(@Param('id', ParseIntPipe) id: number) {
-    return this.userService.findOne(id);
+  @ApiQuery({ name: 'name', required: false, description: 'Find by user name' })
+  @ApiQuery({ name: 'email', required: false, description: 'Find by user email' })
+  async getUserInfo(@Query() query: { name?: string; email?: string }) {
+    const { name, email } = query;
+    const response = await this.userService.findOne({ name, email });
+    return response;
   }
+  
+  
 
   @Post('create')
   @ApiOperation({ summary: 'Create user' })
@@ -49,12 +61,6 @@ export class UserController {
   @ApiOkResponse({ type: DefaultResponse })
   deleteUser(@Param('id') id: number) {
     return this.userService.remove(id);
-  }
-
-
-  @Get('get/:email')
-  findOneByEmail(@Param('email') email: string){
-    return this.userService.findOneByEmail(email);
   }
 
 }
