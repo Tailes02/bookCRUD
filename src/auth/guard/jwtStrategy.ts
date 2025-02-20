@@ -4,7 +4,11 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
+<<<<<<< HEAD
 export class JwtStrategy extends PassportStrategy(Strategy,'jwt') {
+=======
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+>>>>>>> 42bea640926f0b4c56602aaa74f753a9d95f3925
   constructor(
     private readonly userService: UserService,
   ) {
@@ -16,8 +20,12 @@ export class JwtStrategy extends PassportStrategy(Strategy,'jwt') {
   }
 
   async validate(payload: any) {
+<<<<<<< HEAD
     console.log('JWT Payload received in strategy:', payload);
   
+=======
+    console.log('vao day!!!!!!!!')
+>>>>>>> 42bea640926f0b4c56602aaa74f753a9d95f3925
     const user = await this.userService.findOne(payload.sub);
     console.log('User fetched from DB:', user);
   
