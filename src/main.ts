@@ -11,12 +11,19 @@ async function bootstrap() {
   const config = new DocumentBuilder()
    .setTitle("Bookstore API")
    .setDescription("BookCRUD")
-   .addApiKey({ type: 'apiKey', name: 'x-api-key', in: 'header' }, 'api-key') // Adds API Key to Swagger
-   .build();
-
+   .addBearerAuth({
+    type: 'http',
+    scheme: 'bearer',
+    bearerFormat: 'JWT',
+    in: 'header',
+    
+  }, 'jwt',
+)
+  .build();
+  
    const document = SwaggerModule.createDocument(app, config);
    
-   SwaggerModule.setup("api", app, document);  // setup swagger
+   SwaggerModule.setup("api", app, document);  
 
 
   await app.listen(process.env.PORT ?? 3000);

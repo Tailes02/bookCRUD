@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy,'jwt') {
   constructor(
     private readonly userService: UserService,
   ) {
@@ -16,14 +16,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    console.log('JWT Payload received in strategy:', payload);
+  
     const user = await this.userService.findOne(payload.sub);
-    console.log('Looking up user with ID:', payload.sub);
-
+    console.log('User fetched from DB:', user);
+  
     if (!user || user.code !== 200) {
+      console.error('Unauthorized: Invalid token or user not found');
       throw new UnauthorizedException('Invalid token or user not found');
     }
-
-    return user.data; 
+  
+    console.log('User authenticated successfully:', user.data);
+    return user.data;
   }
+  
+  
   
 }

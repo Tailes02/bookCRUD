@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, UseGuards,Request} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, UseGuards,Request, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
-import { ApiOkResponse, ApiOperation, ApiTags,ApiBearerAuth } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags,ApiBearerAuth,ApiQuery } from '@nestjs/swagger';
 import { DefaultResponse } from 'src/docs/default/default-response.swagger';
 import { CreateUserResponse, GetAllUsersResponse, GetUserInfoResponse, UpdateUserResponse } from './response/user.response';
 import { LocalAuthGuard } from 'src/auth/guard/local-auth.guard';
@@ -10,19 +10,18 @@ import { JwtStrategy } from 'src/auth/guard/jwtStrategy';
 import { JwtAuthGuard } from 'src/auth/guard/Jwt-Auth.guard';
 
 @ApiTags('User')
-
-
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  @UseGuards(AuthGuard('jwt'))
+  
   @Get('allUsers')
-  @ApiOperation({ summary: 'Get all users' })
+  @ApiOperation({ summary: 'Get filterd users' })
   @ApiOkResponse({ type: GetAllUsersResponse })
-  findAll() {
-    return this.userService.findAll();
+  @ApiQuery({ name: 'name', required: false, description: 'Filter by user name' })
+  @ApiQuery({ name: 'email', required: false, description: 'Filter by user email' })
+  findAll(@Query('name') name?: string, @Query('email') email?: string) {
+    return this.userService.findAll({name,email});
   }
-
   @Get('info/:id')
   @ApiOperation({ summary: 'Get user info' })
   @ApiOkResponse({ type: GetUserInfoResponse })
@@ -51,8 +50,7 @@ export class UserController {
     return this.userService.remove(id);
   }
 
-  @UseGuards(LocalAuthGuard)
-  @ApiBearerAuth()
+
   @Get('get/:email')
   findOneByEmail(@Param('email') email: string){
     return this.userService.findOneByEmail(email);

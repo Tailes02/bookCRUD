@@ -3,7 +3,6 @@ import { BookService } from './book.service';
 import { CreateBookDto, UpdateBookDto } from './dto/book.dto';
 import { Book } from './entities/books.entity';
 import { ApiBearerAuth } from '@nestjs/swagger';
-@ApiBearerAuth()
 @Controller('book')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
