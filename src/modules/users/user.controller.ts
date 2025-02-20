@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, UseGuards,Request} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
-import { ApiOkResponse, ApiOperation, ApiTags,ApiBearerAuth } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags,ApiBearerAuth, ApiSecurity } from '@nestjs/swagger';
 import { DefaultResponse } from 'src/docs/default/default-response.swagger';
 import { CreateUserResponse, GetAllUsersResponse, GetUserInfoResponse, UpdateUserResponse } from './response/user.response';
 import { LocalAuthGuard } from 'src/auth/guard/local-auth.guard';
@@ -10,12 +10,13 @@ import { JwtStrategy } from 'src/auth/guard/jwtStrategy';
 import { JwtAuthGuard } from 'src/auth/guard/Jwt-Auth.guard';
 
 @ApiTags('User')
-
-
+@ApiBearerAuth('access-token')
+@ApiSecurity('api-key') 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  @UseGuards(AuthGuard('jwt'))
+
+  @UseGuards(JwtAuthGuard)
   @Get('allUsers')
   @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse({ type: GetAllUsersResponse })
