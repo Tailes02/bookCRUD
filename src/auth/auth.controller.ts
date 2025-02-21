@@ -1,9 +1,9 @@
 import { Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
-import { ApiOperation,ApiOkResponse } from '@nestjs/swagger';
+import { ApiOperation,ApiOkResponse,ApiTags } from '@nestjs/swagger';
 import { DefaultResponse } from 'src/docs/default/default-response.swagger';
-
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

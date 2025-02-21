@@ -7,6 +7,7 @@ import { CreateUserResponse, GetAllUsersResponse, GetUserInfoResponse, UpdateUse
 import { DefaultResponse } from 'src/docs/default/default-response.swagger';
 import * as bcrypt from 'bcrypt';
 
+
 @Injectable()
 export class UserService {
   constructor(
@@ -41,7 +42,7 @@ export class UserService {
   }
   
 
-  async findAll(filters?: { name?: string; email?: string }): Promise<GetAllUsersResponse> {
+  async findAll(filters?: { name?: string; email?: string },page: number = 1, limit: number = 3): Promise<GetAllUsersResponse> {
     try {
       const query = this.userRepo.createQueryBuilder('user')
         .leftJoinAndSelect('user.books', 'books');
@@ -53,17 +54,46 @@ export class UserService {
       if (filters?.email) {
         query.andWhere('user.email LIKE :email', { email: `%${filters.email}%` });
       }
-      const users = await query.getMany();
-  
-      return {
-        code: 200,
-        status: 'success',
-        data: users,
-      };
+      const [users, total] = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      code: 200,
+      status: 'success',
+      data: users,
+      meta: {
+        pagination: {
+          count: users.length,
+          current_page: page,
+          per_page: limit,
+          total: total,
+          total_pages: totalPages,
+        },
+      },
+    };
+
     } catch (error) {
       console.error('Error retrieving the users:', error.message);
-      return { code: 400, status: 'error', data: [] };
-    }
+    return {
+      code: 400,
+      status: 'error',
+      data: [],
+      meta: {
+        pagination: {
+          count: 0,
+          current_page: page,
+          per_page: limit,
+          total: 0,
+          total_pages: 0,
+        }
+      },
+    };
+
+   }
   }
   
 

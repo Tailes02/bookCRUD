@@ -24,6 +24,10 @@ export class User {
   @ApiProperty({ type: () => [Book], description: 'Danh sách của người dùng' })
   @OneToMany(() => Book, (book) => book.user)
   books: Book[];
+
+  @ApiProperty({example: '../shared/photos', description: 'ảnh đại diện'})
+  @Column()
+  avatar: string;
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);

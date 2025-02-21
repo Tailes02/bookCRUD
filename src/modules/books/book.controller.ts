@@ -9,6 +9,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtStrategy } from 'src/auth/guard/jwtStrategy';
 import { JwtAuthGuard } from 'src/auth/guard/Jwt-Auth.guard';
 
+@ApiTags('Books')
 @Controller('book')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
@@ -39,13 +40,13 @@ export class BookController {
 
   @Post('create')
   @ApiOperation({ summary: 'Create book' })
-  @ApiOkResponse({ type: DefaultResponse })
+  @ApiOkResponse({ type: CreateBookResponse })
   create(@Body() createBookDto: CreateBookDto) {
     return this.bookService.create(createBookDto);
   }
   @Put('update/:id')
   @ApiOperation({ summary: 'Update book' })
-  @ApiOkResponse({ type: DefaultResponse })
+  @ApiOkResponse({ type: UpdateBookResponse })
   update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
     return this.bookService.update(+id, updateBookDto);
   }
