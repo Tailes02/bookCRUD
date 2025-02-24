@@ -21,8 +21,8 @@ import { join }  from 'path';
       envFilePath: '../.env',
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', './shared/photos'), // path to serve images
-      serveRoot: '/images', // route to access images: http://localhost:3000/images/<filename>
+      rootPath: join(__dirname, '..', './shared/photos'), 
+      serveRoot: '/images', 
     }),
     ],
 })

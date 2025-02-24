@@ -8,7 +8,7 @@ export class LoggingMiddleware implements NestMiddleware {
         console.log('LoggingMiddleware triggered'); 
 
         res.on('finish', () => {
-            console.log('Response finished event triggered'); // ✅ Should log when response ends
+            console.log('Response finished event triggered');
 
             const duration = Date.now() - start;
 
