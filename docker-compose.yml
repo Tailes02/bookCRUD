@@ -6,8 +6,8 @@ services:
     container_name: mysql_container123
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: nestjsBeginner
-      MYSQL_USER: quangdn
+      MYSQL_DATABASE: nestjs
+      MYSQL_USER: taile
       MYSQL_PASSWORD: 123456
     ports:
       - "3306:3306"

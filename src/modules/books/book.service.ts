@@ -123,6 +123,7 @@ export class BookService {
     } catch (error) {
       console.error('Error deleting the book:', error.message);
       return { code: 400, status: 'error' };
+      
     }
   }
 }

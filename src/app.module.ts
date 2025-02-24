@@ -6,7 +6,9 @@ import { typeOrmConfig } from './config/database.config';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { LoggingMiddleware } from './shared/common/middlewares/logging.middleware';
-
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join }  from 'path';
+;{ }
 @Module({
   imports: [
 
@@ -17,7 +19,11 @@ import { LoggingMiddleware } from './shared/common/middlewares/logging.middlewar
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '../.env',
-    })
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', './shared/photos'), // path to serve images
+      serveRoot: '/images', // route to access images: http://localhost:3000/images/<filename>
+    }),
     ],
 })
 export class AppModule implements NestModule {
